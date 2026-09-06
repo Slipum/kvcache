@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(kvcache
         main.cpp
 
-        infrastructure/repository/HashTableRepository.hpp
         infrastructure/hashtable/HashTable.hpp
         infrastructure/di/DIContainer.hpp
         infrastructure/config/env.hpp
