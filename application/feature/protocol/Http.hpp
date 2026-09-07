@@ -3,16 +3,7 @@
 #include "domain/abstracts/IServer.hpp"
 #include <httplib.h>
 
-#include "json.hpp"
-#include "domain/entity/Value.hpp"
-
 namespace application::feature {
-    struct KeyValue {
-        std::string key;
-        domain::Value value;
-    };
-    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(KeyValue, key, value);
-
     class HttpServer : public domain::abstracts::IServer {
     private:
         httplib::Server srv;

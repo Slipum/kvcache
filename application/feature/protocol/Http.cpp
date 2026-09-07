@@ -92,7 +92,7 @@ void HttpServer::create()
     {
         try {
             auto body = nlohmann::json::parse(req.body);
-            auto kv = body.get<KeyValue>();
+            auto kv = body.get<domain::KeyValue>();
             if (infrastructure::di::HashTable()->get(kv.key)) {
                 res.status = 409;
                 nlohmann::json error_json = {{"error", "Key '" + kv.key + "' already exists"}};

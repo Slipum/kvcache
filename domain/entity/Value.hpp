@@ -2,6 +2,8 @@
 #define KVCACHE_VALUE_HPP
 #include <string>
 
+#include "json.hpp"
+
 namespace nlohmann {
     template <>
     struct adl_serializer<std::chrono::seconds> {
@@ -44,6 +46,12 @@ namespace domain
 
         NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Value, value, ttl)
     };
+
+    struct KeyValue {
+        std::string key;
+        domain::Value value;
+    };
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(KeyValue, key, value);
 }
 
 #endif //KVCACHE_VALUE_HPP
