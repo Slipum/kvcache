@@ -39,6 +39,16 @@ namespace infrastructure::hashtable {
         bool remove(const std::string& key) override {
             return table.erase(key) > 0;
         }
+
+        domain::MapType::iterator begin() override
+        {
+            return table.begin();
+        }
+
+        domain::MapType::iterator end() override
+        {
+            return table.end();
+        }
     };
 };
 #endif //KVCACHE_HASH_TABLE_H

@@ -18,6 +18,9 @@ namespace domain::abstracts {
         virtual std::pair<MapType::const_iterator, MapType::const_iterator> get_iter() const = 0;
 
         virtual bool remove(const std::string& key) = 0;
+
+        virtual MapType::iterator begin() = 0;
+        virtual MapType::iterator end() = 0;
     };
 };
 #endif //KVCACHE_IHASH_TABLE_H
