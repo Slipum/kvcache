@@ -1,0 +1,8 @@
+*.env
+LICENSE
+README.md
+.gitignore
+.git/
+.idea/
+cmake-build-debug/
+build/

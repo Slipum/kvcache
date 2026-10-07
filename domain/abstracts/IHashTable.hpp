@@ -10,7 +10,7 @@ namespace domain::abstracts {
     public:
         virtual ~IHashTable() = default;
 
-        virtual void insert(const std::string& key, std::optional<std::chrono::system_clock::time_point> ttl, const std::string& value) = 0;
+        virtual void insert(const std::string& key, std::optional<std::chrono::steady_clock::time_point> ttl, const std::string& value) = 0;
         virtual void insert(const std::string& key, const std::string& value) = 0;
         virtual Value& operator[](const std::string& key) = 0;
 
@@ -21,6 +21,8 @@ namespace domain::abstracts {
 
         virtual MapType::iterator begin() = 0;
         virtual MapType::iterator end() = 0;
+
+        virtual size_t remove_expired() = 0;
     };
 };
 #endif //KVCACHE_IHASH_TABLE_H

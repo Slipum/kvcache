@@ -1,4 +1,4 @@
-# kv-cache
+# kvcache
 
 > This is a key‑value cache service with TTL and periodic tasks for deletion.
 
@@ -6,8 +6,8 @@
 
 - Setup `.env` for this use example.env
 ```.env
-PORT=8080 # Port for http 
-PERIODIC_SEC=10 # Poll the storage for deletion by ttl.
+PORT=7379 # Port for http 
+PERIODIC_SEC=1 # Poll the storage for deletion by ttl.
 ```
 
 - Routes
