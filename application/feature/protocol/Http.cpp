@@ -18,23 +18,27 @@ void HttpServer::get() {
         const std::string kid_str = req.path_params.at("kid");
 
         try {
-            auto table = infrastructure::di::HashTable()->get(kid_str);
+            auto table = infrastructure::DiContainer::resolve<infrastructure::hashtable::HashTable>()->get(kid_str);
             if (!table) {
                 res.status = 404;
                 res.set_content("Not found", "text/plain; charset=utf-8");
                 return;
             }
 
-            nlohmann::json response_json = {
-                {kid_str, {
-                    {"value", table->value},
-                    {"ttl", table->ttl ? std::format("{}", table->ttl->time_since_epoch()) : nullptr}
-                }}
-            };
+            nlohmann::json response_json;
+            response_json["value"] = table->value;
+
+            if (table->ttl.has_value()) {
+                auto duration = table->ttl.value() - std::chrono::steady_clock::now();
+                auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+                response_json["ttl"] = ms > 0 ? ms : 0;
+            } else {
+                response_json["ttl"] = nullptr;
+            }
 
             res.set_content(response_json.dump(), "application/json; charset=utf-8");
         }
-        catch (const std::exception& e) {
+        catch (const std::exception& _) {
             res.status = 500;
             res.set_content("Internal Server Error", "text/plain; charset=utf-8");
         }
@@ -48,7 +52,7 @@ void HttpServer::get() {
 void HttpServer::get_all() {
     srv.Get("/", [](const httplib::Request& req, httplib::Response& res) {
         try {
-            const auto& table_ptr = infrastructure::di::HashTable();
+            const auto& table_ptr = infrastructure::DiContainer::resolve<domain::abstracts::IHashTable>();
             if (!table_ptr) {
                 res.status = 500;
                 res.set_content("Internal server error: cache unavailable", "text/plain; charset=utf-8");
@@ -77,7 +81,7 @@ void HttpServer::del()
     srv.Delete("/:kid", [](const httplib::Request& req, httplib::Response& res) {
         std::string kid_str = req.path_params.at("kid");
         try {
-            if (!infrastructure::di::HashTable()->remove(kid_str))
+            if (!infrastructure::DiContainer::resolve<domain::abstracts::IHashTable>()->remove(kid_str))
             {
                 res.status = 404;
                 res.set_content("Not found", "text/plain; charset=utf-8");
@@ -98,16 +102,16 @@ void HttpServer::create()
         try {
             auto body = nlohmann::json::parse(req.body);
             auto kv = body.get<domain::KeyValue>();
-            if (infrastructure::di::HashTable()->get(kv.key)) {
+            if (infrastructure::DiContainer::resolve<domain::abstracts::IHashTable>()->get(kv.key)) {
                 res.status = 409;
                 nlohmann::json error_json = {{"error", "Key '" + kv.key + "' already exists"}};
                 res.set_content(error_json.dump(), "application/json; charset=utf-8");
                 return;
             }
             if (kv.value.ttl)
-                infrastructure::di::HashTable()->insert(kv.key, std::chrono::system_clock::now() + kv.value.ttl->time_since_epoch(), kv.value.value);
+                infrastructure::DiContainer::resolve<domain::abstracts::IHashTable>()->insert(kv.key, std::chrono::steady_clock::now() + kv.value.ttl->time_since_epoch(), kv.value.value);
             else
-                infrastructure::di::HashTable()->insert(kv.key, kv.value.value);
+                infrastructure::DiContainer::resolve<domain::abstracts::IHashTable>()->insert(kv.key, kv.value.value);
 
             res.set_content(body.dump(), "application/json; charset=utf-8");
             res.status = 201;

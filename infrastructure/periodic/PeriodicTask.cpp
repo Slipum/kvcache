@@ -2,14 +2,11 @@
 
 using namespace infrastructure::periodic;
 
-void PeriodicTask::delete_ttl()
-{
-    auto [begin, end] = di::HashTable()->get_iter();
-    for (auto it = begin; it != end; ++it) {
-        if (it->second.ttl <= std::chrono::system_clock::now())
-        {
-            std::cout << "Deleting ttl with key: " << it->first << "\n";
-            di::HashTable()->remove(it->first);
-        }
+void PeriodicTask::delete_ttl() {
+    auto table = DiContainer::resolve<domain::abstracts::IHashTable>();
+    size_t removed = table->remove_expired();
+
+    if (removed > 0) {
+        std::cout << "[TTL Cleaner] Removed " << removed << " expired keys.\n";
     }
 }

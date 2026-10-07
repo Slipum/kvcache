@@ -1,0 +1,14 @@
+services:
+  kvcache:
+    build:
+      context: .
+      args:
+        PORT: 7379
+        PERIODIC_SEC: 1
+    image: kvcache:latest
+    environment:
+      - PORT=7379
+      - PERIODIC_SEC=5
+    ports:
+      - "7379:7379"
+    restart: unless-stopped
