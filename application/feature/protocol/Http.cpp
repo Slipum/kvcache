@@ -65,9 +65,12 @@ void HttpServer::get_all() {
 
             nlohmann::json result = nlohmann::json::object();
             for (const auto& [key, item] : *table_ptr) {
+                auto duration = item.ttl.value() - std::chrono::steady_clock::now();
                 result[key] = {
                     {"value", item.value},
-                    {"ttl", item.ttl ? nlohmann::json(item.ttl->time_since_epoch().count()) : nullptr}
+                    {"ttl", item.ttl ? nlohmann::json(
+                        std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()
+                        ) : nullptr}
                 };
             }
 
