@@ -15,10 +15,14 @@ void HttpServer::run() {
 
 void HttpServer::get() {
     srv.Get("/:kid", [](const httplib::Request& req, httplib::Response& res) {
-        const std::string kid_str = req.path_params.at("kid");
-
         try {
-            auto table = infrastructure::DiContainer::resolve<infrastructure::hashtable::HashTable>()->get(kid_str);
+            if (req.path_params.find("kid") == req.path_params.end()) {
+                res.status = 400;
+                res.set_content("Bad Request: missing 'kid' parameter", "text/plain; charset=utf-8");
+                return;
+            }
+            const std::string kid_str = req.path_params.at("kid");
+            auto table = infrastructure::DiContainer::resolve<domain::abstracts::IHashTable>()->get(kid_str);
             if (!table) {
                 res.status = 404;
                 res.set_content("Not found", "text/plain; charset=utf-8");
@@ -38,9 +42,9 @@ void HttpServer::get() {
 
             res.set_content(response_json.dump(), "application/json; charset=utf-8");
         }
-        catch (const std::exception& _) {
+        catch (const std::exception& e) {
             res.status = 500;
-            res.set_content("Internal Server Error", "text/plain; charset=utf-8");
+            res.set_content(e.what(), "text/plain; charset=utf-8");
         }
         catch (...) {
             res.status = 500;
@@ -71,7 +75,7 @@ void HttpServer::get_all() {
         }
         catch (const std::exception& e) {
             res.status = 500;
-            res.set_content("Internal server error", "text/plain; charset=utf-8");
+            res.set_content(e.what(), "text/plain; charset=utf-8");
         }
     });
 }
